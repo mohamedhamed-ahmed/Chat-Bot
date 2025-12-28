@@ -22,19 +22,19 @@ const ChatBot = () => {
    const conversationId = useRef(crypto.randomUUID());
    const [isTyping, setIsTyping] = useState(false);
    const [messages, setMessages] = useState<Message[]>([]);
-   const formRef = useRef<HTMLFormElement | null>(null);
+   const lastMessageRef = useRef<HTMLDivElement | null>(null);
    const { register, handleSubmit, reset, formState } = useForm<FormData>();
 
    useEffect(() => {
-      if (formRef.current) {
-         formRef.current.scrollIntoView({ behavior: 'smooth' });
+      if (lastMessageRef.current) {
+         lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
       }
    }, [messages]);
 
    const onSubmit = async ({ prompt }: FormData) => {
       setIsTyping(true);
       setMessages((prev) => [...prev, { content: prompt, role: 'user' }]);
-      reset();
+      reset({ prompt: '' });
       const { data } = await axios.post<ResponseData>('/api/chat', {
          conversationId: conversationId.current,
          prompt,
@@ -59,22 +59,23 @@ const ChatBot = () => {
    };
 
    return (
-      <div>
-         <div className="flex flex-col gap-2 mb-5">
+      <div className="flex flex-col h-full">
+         <div className="flex flex-col flex-1 gap-2 mb-5 overflow-y-auto">
             {messages.map((message, index) => (
-               <p
+               <div
                   key={index}
                   className={`px-3 py-2 rounded-xl ${message.role === 'user' ? 'bg-blue-600 self-end text-white' : 'bg-gray-100 self-start text-black'}`}
+                  ref={index === messages.length - 1 ? lastMessageRef : null}
                   onCopy={onCopyHandler}
                >
                   <ReactMarkdown>{message.content}</ReactMarkdown>
-               </p>
+               </div>
             ))}
             {isTyping && <TypingIndicator />}
          </div>
          <form
-            ref={formRef}
             className="flex flex-col gap-2 items-end border-2 p-4 rounded-3xl"
+            autoFocus
             // eslint-disable-next-line react-hooks/refs
             onSubmit={handleSubmit(onSubmit)}
             onKeyDown={handleKeyDown}
