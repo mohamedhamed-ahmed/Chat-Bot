@@ -4,6 +4,7 @@ import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaArrowUp } from 'react-icons/fa';
 import { Button } from './ui/button';
+import TypingIndicator from './TypingIndicator';
 type FormData = {
    prompt: string;
 };
@@ -19,10 +20,12 @@ type Message = {
 
 const ChatBot = () => {
    const conversationId = useRef(crypto.randomUUID());
+   const [isTyping, setIsTyping] = useState(false);
    const [messages, setMessages] = useState<Message[]>([]);
    const { register, handleSubmit, reset, formState } = useForm<FormData>();
 
    const onSubmit = async ({ prompt }: FormData) => {
+      setIsTyping(true);
       setMessages((prev) => [...prev, { content: prompt, role: 'user' }]);
       reset();
       const { data } = await axios.post<ResponseData>('/api/chat', {
@@ -30,8 +33,8 @@ const ChatBot = () => {
          prompt,
       });
 
-      console.log(data);
       setMessages((prev) => [...prev, { content: data.message, role: 'bot' }]);
+      setIsTyping(false);
    };
    const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
@@ -51,6 +54,7 @@ const ChatBot = () => {
                   <ReactMarkdown>{message.content}</ReactMarkdown>
                </div>
             ))}
+            {isTyping && <TypingIndicator />}
          </div>
          <form
             className="flex flex-col gap-2 items-end border-2 p-4 rounded-3xl"
