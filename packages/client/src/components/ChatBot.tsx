@@ -1,10 +1,11 @@
 import axios from 'axios';
-import ReactMarkdown from 'react-markdown';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaArrowUp } from 'react-icons/fa';
 import { Button } from './ui/button';
 import TypingIndicator from './TypingIndicator';
+import type { Message } from './ChatMessages';
+import ChatMessages from './ChatMessages';
 type FormData = {
    prompt: string;
 };
@@ -13,24 +14,12 @@ type ResponseData = {
    message: string;
 };
 
-type Message = {
-   role: 'user' | 'bot';
-   content: string;
-};
-
 const ChatBot = () => {
    const conversationId = useRef(crypto.randomUUID());
    const [isTyping, setIsTyping] = useState(false);
    const [messages, setMessages] = useState<Message[]>([]);
    const [errors, setErrors] = useState('');
-   const lastMessageRef = useRef<HTMLDivElement | null>(null);
    const { register, handleSubmit, reset, formState } = useForm<FormData>();
-
-   useEffect(() => {
-      if (lastMessageRef.current) {
-         lastMessageRef.current.scrollIntoView({ behavior: 'smooth' });
-      }
-   }, [messages]);
 
    const onSubmit = async ({ prompt }: FormData) => {
       try {
@@ -60,27 +49,10 @@ const ChatBot = () => {
       }
    };
 
-   const onCopyHandler = (e: React.ClipboardEvent<HTMLParagraphElement>) => {
-      const selectedText = window.getSelection()?.toString()?.trim();
-      if (selectedText) {
-         e.preventDefault();
-         e.clipboardData.setData('text/plain', selectedText);
-      }
-   };
-
    return (
       <div className="flex flex-col h-full">
          <div className="flex flex-col flex-1 gap-2 mb-5 overflow-y-auto">
-            {messages.map((message, index) => (
-               <div
-                  key={index}
-                  className={`px-3 py-2 rounded-xl ${message.role === 'user' ? 'bg-blue-600 self-end text-white' : 'bg-gray-100 self-start text-black'}`}
-                  ref={index === messages.length - 1 ? lastMessageRef : null}
-                  onCopy={onCopyHandler}
-               >
-                  <ReactMarkdown>{message.content}</ReactMarkdown>
-               </div>
-            ))}
+            <ChatMessages messages={messages} />
             {isTyping && <TypingIndicator />}
             {errors && <p className="text-red-500">{errors}</p>}
          </div>
