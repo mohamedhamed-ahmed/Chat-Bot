@@ -22,6 +22,7 @@ const ChatBot = () => {
    const conversationId = useRef(crypto.randomUUID());
    const [isTyping, setIsTyping] = useState(false);
    const [messages, setMessages] = useState<Message[]>([]);
+   const [errors, setErrors] = useState('');
    const lastMessageRef = useRef<HTMLDivElement | null>(null);
    const { register, handleSubmit, reset, formState } = useForm<FormData>();
 
@@ -32,16 +33,25 @@ const ChatBot = () => {
    }, [messages]);
 
    const onSubmit = async ({ prompt }: FormData) => {
-      setIsTyping(true);
-      setMessages((prev) => [...prev, { content: prompt, role: 'user' }]);
-      reset({ prompt: '' });
-      const { data } = await axios.post<ResponseData>('/api/chat', {
-         conversationId: conversationId.current,
-         prompt,
-      });
+      try {
+         setIsTyping(true);
+         setErrors('');
+         setMessages((prev) => [...prev, { content: prompt, role: 'user' }]);
+         reset({ prompt: '' });
+         const { data } = await axios.post<ResponseData>('/api/chat', {
+            conversationId: conversationId.current,
+            prompt,
+         });
 
-      setMessages((prev) => [...prev, { content: data.message, role: 'bot' }]);
-      setIsTyping(false);
+         setMessages((prev) => [
+            ...prev,
+            { content: data.message, role: 'bot' },
+         ]);
+      } catch {
+         setErrors('Failed to generate response');
+      } finally {
+         setIsTyping(false);
+      }
    };
    const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
@@ -72,6 +82,7 @@ const ChatBot = () => {
                </div>
             ))}
             {isTyping && <TypingIndicator />}
+            {errors && <p className="text-red-500">{errors}</p>}
          </div>
          <form
             className="flex flex-col gap-2 items-end border-2 p-4 rounded-3xl"
