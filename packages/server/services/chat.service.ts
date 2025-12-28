@@ -18,7 +18,7 @@ export const chatService = {
       const response = await openaiClient.responses.create({
          model: 'gpt-4o-mini',
          temperature: 0.2,
-         max_output_tokens: 1000,
+         max_output_tokens: 200,
          input: prompt,
          previous_response_id:
             conversationRepository.getConversation(conversationId),
