@@ -11,13 +11,18 @@ type ResponseData = {
    message: string;
 };
 
+type Message = {
+   role: 'user' | 'bot';
+   content: string;
+};
+
 const ChatBot = () => {
    const conversationId = useRef(crypto.randomUUID());
-   const [messages, setMessages] = useState<string[]>([]);
+   const [messages, setMessages] = useState<Message[]>([]);
    const { register, handleSubmit, reset, formState } = useForm<FormData>();
 
    const onSubmit = async ({ prompt }: FormData) => {
-      setMessages((prev) => [...prev, prompt]);
+      setMessages((prev) => [...prev, { content: prompt, role: 'user' }]);
       reset();
       const { data } = await axios.post<ResponseData>('/api/chat', {
          conversationId: conversationId.current,
@@ -25,7 +30,7 @@ const ChatBot = () => {
       });
 
       console.log(data);
-      setMessages((prev) => [...prev, data.message]);
+      setMessages((prev) => [...prev, { content: data.message, role: 'bot' }]);
    };
    const handleKeyDown = (e: React.KeyboardEvent<HTMLFormElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
@@ -36,9 +41,14 @@ const ChatBot = () => {
 
    return (
       <div>
-         <div>
+         <div className="flex flex-col gap-2 mb-5">
             {messages.map((message, index) => (
-               <div key={index}>{message}</div>
+               <div
+                  key={index}
+                  className={`px-3 py-2 rounded-xl ${message.role === 'user' ? 'bg-blue-600 self-end text-white' : 'bg-gray-100 self-start text-black'}`}
+               >
+                  {message.content}
+               </div>
             ))}
          </div>
          <form
