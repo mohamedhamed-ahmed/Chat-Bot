@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "my-app",
+      "name": "Chat-Bot",
       "devDependencies": {
         "@types/bun": "latest",
         "concurrently": "^9.2.1",
