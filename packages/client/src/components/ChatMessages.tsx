@@ -32,7 +32,7 @@ function ChatMessages({ messages }: Props) {
          {messages.map((message, index) => (
             <div
                key={index}
-               className={`px-3 py-2 rounded-xl ${message.role === 'user' ? 'bg-blue-600 self-end text-white' : 'bg-gray-100 self-start text-black'}`}
+               className={`px-3 py-2 max-w-md rounded-xl ${message.role === 'user' ? 'bg-blue-600 self-end text-white' : 'bg-gray-100 self-start text-black'}`}
                ref={index === messages.length - 1 ? lastMessageRef : null}
                onCopy={onCopyHandler}
             >

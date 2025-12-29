@@ -1,5 +1,14 @@
 import openai from 'openai';
 import { conversationRepository } from '../repositories/conversation.repository';
+import chatbotPrompt from '../prompts/chatbot.txt';
+import fs from 'fs';
+import path from 'path';
+
+const parkInfo = fs.readFileSync(
+   path.join(__dirname, '../prompts/WonderWorld.md'),
+   'utf8'
+);
+const instructions = chatbotPrompt.replace('{{parkInfo}}', parkInfo);
 
 const openaiClient = new openai({
    apiKey: process.env.OPENAI_API_KEY,
@@ -17,6 +26,7 @@ export const chatService = {
    ): Promise<ChatResponse> => {
       const response = await openaiClient.responses.create({
          model: 'gpt-4o-mini',
+         instructions,
          temperature: 0.2,
          max_output_tokens: 200,
          input: prompt,
