@@ -2,7 +2,7 @@ import type { Review } from '../generated/prisma/client';
 import { prisma } from '../lib/prisma';
 
 export const reviewRepository = {
-   getReviews: async (productId: number): Promise<Review[]> =>
+   getReviews: async (productId: number, limit?: number): Promise<Review[]> =>
       prisma.review.findMany({
          where: {
             productId,
@@ -10,5 +10,6 @@ export const reviewRepository = {
          orderBy: {
             createdAt: 'desc',
          },
+         take: limit,
       }),
 };
