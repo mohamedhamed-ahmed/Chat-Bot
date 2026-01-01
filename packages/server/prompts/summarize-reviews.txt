@@ -1,0 +1,2 @@
+Summarize the following product reviews highlighting the positive and negative aspects:
+{{joinedReviews}}
