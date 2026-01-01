@@ -9,11 +9,14 @@ export const reviewService = {
    summarizeReviews: async (productId: number): Promise<string> => {
       const existingSummary =
          await reviewRepository.getReviewSummary(productId);
-      if (existingSummary && existingSummary.expiresAt > new Date()) {
-         return existingSummary.content;
+      if (existingSummary) {
+         return existingSummary;
       }
 
       const reviews = await reviewRepository.getReviews(productId, 10);
+      if (reviews.length === 0) {
+         return 'No reviews found for this product.';
+      }
       const joinedReviews = reviews
          .map((review) => review.content)
          .join('\n\n');

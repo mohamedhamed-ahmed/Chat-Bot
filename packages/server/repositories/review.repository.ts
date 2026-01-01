@@ -32,11 +32,22 @@ export const reviewRepository = {
          create: data,
       });
    },
-   getReviewSummary: async (productId: number) => {
-      return prisma.summary.findUnique({
+   getReviewSummary: async (productId: number): Promise<string | null> => {
+      const summary = await prisma.summary.findFirst({
          where: {
-            productId,
+            AND: {
+               productId,
+               expiresAt: {
+                  lt: new Date(),
+               },
+            },
          },
       });
+
+      if (!summary) {
+         return null;
+      }
+
+      return summary.content;
    },
 };
