@@ -4,8 +4,8 @@ import { reviewRepository } from '../repositories/review.repository';
 import summarizeReviewsPrompt from '../prompts/summarize-reviews.txt';
 
 export const reviewService = {
-   getReviews: async (productId: number): Promise<Review[]> =>
-      reviewRepository.getReviews(productId),
+   getReviews: async (productId: number, limit?: number): Promise<Review[]> =>
+      reviewRepository.getReviews(productId, limit),
    summarizeReviews: async (productId: number): Promise<string> => {
       const existingSummary =
          await reviewRepository.getReviewSummary(productId);
