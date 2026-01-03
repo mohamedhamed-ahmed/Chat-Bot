@@ -26,6 +26,12 @@ export const reviewService = {
          joinedReviews
       );
 
+      const summary = await llmClient.summarizeText({
+         input: prompt,
+         instructions: summarizeReviewsPrompt,
+      });
+      console.log('summary', JSON.stringify(summary, null, 2));
+
       const { text } = await llmClient.generateText({
          model: 'gpt-4.1',
          input: prompt,

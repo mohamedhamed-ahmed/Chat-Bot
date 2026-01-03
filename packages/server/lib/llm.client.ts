@@ -1,3 +1,4 @@
+import { Ollama } from 'ollama';
 import openai from 'openai';
 
 type GenerateTextOptions = {
@@ -14,9 +15,16 @@ type GenerateTextResponse = {
    text: string;
 };
 
+type OllamaSummarizeTextOptions = {
+   input: string;
+   instructions: string;
+};
+
 const openaiClient = new openai({
    apiKey: process.env.OPENAI_API_KEY,
 });
+
+const ollamaClient = new Ollama();
 
 export const llmClient = {
    generateText: async ({
@@ -40,5 +48,25 @@ export const llmClient = {
          id: response.id,
          text: response.output_text,
       };
+   },
+   summarizeText: async ({
+      input,
+      instructions,
+   }: OllamaSummarizeTextOptions): Promise<string> => {
+      const response = await ollamaClient.chat({
+         model: 'llama3.1',
+         messages: [
+            {
+               role: 'system',
+               content: instructions,
+            },
+            {
+               role: 'user',
+               content: input,
+            },
+         ],
+      });
+
+      return response.message.content || '';
    },
 };
